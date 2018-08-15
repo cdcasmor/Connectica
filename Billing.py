@@ -1,6 +1,7 @@
 from datetime import datetime
 import numpy as np
 import pandas as pd
+from decimal import Decimal
 
 #Number of thinq files after unzipping (thinq)
 thinq_amount = int(input('Enter the amount of thinq files:'))
@@ -19,14 +20,13 @@ for file in files:
 thinq_df = pd.concat(thinq_dataframes)
 
 for index, row in thinq_df.iterrows():
-    thinq_df['Disposition'] = 'ANSWERED'py
+    thinq_df['Disposition'] = 'ANSWERED'
     thinq_df['CallerID'] = ''
 thinq_df = thinq_df.reindex_axis(['time','from_ani','to_did','billsec','CallerID','Disposition','total','src_ip'], axis=1)
 thinq_df = thinq_df.rename(index=str, columns={"time": "Date", "from_ani": "Source","to_did": "Destination","billsec": "Seconds","total": "Cost","src_ip": "Peer"})
 
-thinq_df.to_csv('cdr', encoding='utf-8' , index=False)
+thinq_df.to_csv('thinq_cdr.csv', encoding='utf-8' , index=False)
 
-'''
 #Importing avoxi file:
 avoxi_name = input('Enter the name of the avoxi file: ')
 
@@ -36,11 +36,14 @@ for index, row in avoxi_raw.iterrows():
     avoxi_raw['Disposition'] = 'ANSWERED'
     avoxi_raw['CallerID'] = ''
     
-avoxi_raw = avoxi_raw[['Date/Time','Caller ID (From)','Caller ID (To)','Duration', 'CallerID', 'Disposition', 'Cost', 'Account ID']]
-avoxi_df = avoxi_raw.rename(index=str, columns={"Date/Time": "Date", "Caller ID (From)": "Source","Caller ID (To)": "Destination","Duration": "Seconds","Account ID": "Peer"})
+avoxi_raw = avoxi_raw[['Date/Time','From','To','Duration', 'CallerID', 'Disposition', 'Cost', 'Number/Ext./SIP Trunk']]
+avoxi_df = avoxi_raw.rename(index=str, columns={"Date/Time": "Date", "From": "Source","To": "Destination","Duration": "Seconds","Number/Ext./SIP Trunk": "Peer"})
 
-avoxi_df.to_csv('thinq_final', encoding='utf-8' , index=False)
+avoxi_df = avoxi_df.sort_values(by='Date', ascending=True) # This now sorts in date order
 
+avoxi_df.to_csv('avoxi_cdr.csv', encoding='utf-8' , index=False)
+
+'''
 #migesa
 
 migesa_name = input('Enter the name of the migesa file: ')
