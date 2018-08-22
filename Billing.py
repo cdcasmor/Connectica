@@ -3,61 +3,66 @@ import numpy as np
 import pandas as pd
 from decimal import Decimal
 
-#Number of thinq files after unzipping (thinq)
-thinq_amount = int(input('Enter the amount of thinq files:'))
-thinq_iterations = np.arange(thinq_amount)
+decision = input("enter the company for which you want to generate cdr: ")
 
-#Creating Request for thinq file names 
-thinq_dataframes = []
-files = []
-for i in thinq_iterations:
-    files.append(str(input("Enter the name of the thinq files:")))    
+if decision == "thinq":
+	#Number of thinq files after unzipping (thinq)
+	thinq_amount = int(input('Enter the amount of thinq files:'))
+	thinq_iterations = np.arange(thinq_amount)
 
-#thinq concat to unify all thinq files unzipped
-for file in files:
-    filename = '%s'%(file)
-    thinq_dataframes.append(pd.read_csv(filename))
-thinq_df = pd.concat(thinq_dataframes)
+	#Creating Request for thinq file names 
+	thinq_dataframes = []
+	files = []
+	for i in thinq_iterations:
+		files.append(str(input("Enter the name of the thinq files:")))    
 
-for index, row in thinq_df.iterrows():
-    thinq_df['Disposition'] = 'ANSWERED'
-    thinq_df['CallerID'] = ''
-thinq_df = thinq_df.reindex_axis(['time','from_ani','to_did','billsec','CallerID','Disposition','total','src_ip'], axis=1)
-thinq_df = thinq_df.rename(index=str, columns={"time": "Date", "from_ani": "Source","to_did": "Destination","billsec": "Seconds","total": "Cost","src_ip": "Peer"})
+	#thinq concat to unify all thinq files unzipped
+	for file in files:
+		filename = '%s'%(file)
+		thinq_dataframes.append(pd.read_csv(filename))
+	thinq_df = pd.concat(thinq_dataframes)
 
-thinq_df.to_csv('thinq_cdr.csv', encoding='utf-8' , index=False)
+	for index, row in thinq_df.iterrows():
+		thinq_df['Disposition'] = 'ANSWERED'
+		thinq_df['CallerID'] = ''
+	thinq_df = thinq_df.reindex_axis(['time','from_ani','to_did','billsec','CallerID','Disposition','total','src_ip'], axis=1)
+	thinq_df = thinq_df.rename(index=str, columns={"time": "Date", "from_ani": "Source","to_did": "Destination","billsec": "Seconds","total": "Cost","src_ip": "Peer"})
 
-#Importing avoxi file:
-avoxi_name = input('Enter the name of the avoxi file: ')
+	thinq_df.to_csv('thinq_cdr.csv', encoding='utf-8' , index=False)
 
-avoxi_raw = pd.read_csv(avoxi_name)
+elif decision == "avoxi":
+	#Importing avoxi file:
+	avoxi_name = input('Enter the name of the avoxi file: ')
 
-for index, row in avoxi_raw.iterrows():
-    avoxi_raw['Disposition'] = 'ANSWERED'
-    avoxi_raw['CallerID'] = ''
-    
-avoxi_raw = avoxi_raw[['Date/Time','From','To','Duration', 'CallerID', 'Disposition', 'Cost', 'Number/Ext./SIP Trunk']]
-avoxi_df = avoxi_raw.rename(index=str, columns={"Date/Time": "Date", "From": "Source","To": "Destination","Duration": "Seconds","Number/Ext./SIP Trunk": "Peer"})
+	avoxi_raw = pd.read_csv(avoxi_name)
 
-avoxi_df = avoxi_df.sort_values(by='Date', ascending=True) # This now sorts in date order
+	for index, row in avoxi_raw.iterrows():
+		avoxi_raw['Disposition'] = 'ANSWERED'
+		avoxi_raw['CallerID'] = ''
+		
+	avoxi_raw = avoxi_raw[['Date/Time','From','To','Duration', 'CallerID', 'Disposition', 'Cost', 'Number/Ext./SIP Trunk']]
+	avoxi_df = avoxi_raw.rename(index=str, columns={"Date/Time": "Date", "From": "Source","To": "Destination","Duration": "Seconds","Number/Ext./SIP Trunk": "Peer"})
 
-avoxi_df.to_csv('avoxi_cdr.csv', encoding='utf-8' , index=False)
+	avoxi_df = avoxi_df.sort_values(by='Date', ascending=True) # This now sorts in date order
 
-'''
-#migesa
+	avoxi_df.to_csv('avoxi_cdr.csv', encoding='utf-8' , index=False)
+	
+elif decision == "migesa":
+	#migesa
+	migesa_name = input('Enter the name of the migesa file: ')
+	migesa_raw = pd.read_csv(migesa_name)
 
-migesa_name = input('Enter the name of the migesa file: ')
-migesa_raw = pd.read_csv(migesa_name)
+	for index, row in migesa_raw.iterrows():
+		migesa_raw['Cost'] = migesa_raw['duration']*(.087/60)
+		migesa_raw['Peer'] = "38.100.65.27"
+		
+	migesa_raw = migesa_raw[['calldate','src','dst','duration', 'clid', 'disposition', 'Cost', 'Peer']]
+	migesa_df = migesa_raw.rename(index=str, columns={"calldate": "Date", "src": "Source","dst": "Destination","duration": "Seconds","clid": "CallerID", "disposition": "Disposition"})
 
-for index, row in migesa_raw.iterrows():
-    migesa_raw['Cost'] = migesa_raw['duration']*(.087/60)
-    migesa_raw['Peer'] = "38.100.65.27"
-    
-migesa_raw = migesa_raw[['calldate','src','dst','duration', 'clid', 'disposition', 'Cost', 'Peer']]
-migesa_df = migesa_raw.rename(index=str, columns={"calldate": "Date", "src": "Source","dst": "Destination","duration": "Seconds","clid": "CallerID", "disposition": "Disposition"})
-
-migesa_df.to_csv('out.csv', encoding='utf-8', index=False)
-'''
+	migesa_df.to_csv('migesa_cdr.csv', encoding='utf-8', index=False)
+	
+else:
+	print("Please enter a valid provider")
 
 #df = pd.concat([thinq_df, avoxi_df, migesa_df])
 
