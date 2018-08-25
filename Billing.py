@@ -29,6 +29,7 @@ if decision == "thinq":
 	thinq_df = thinq_df.rename(index=str, columns={"time": "Date", "from_ani": "Source","to_did": "Destination","billsec": "Seconds","total": "Cost","src_ip": "Peer"})
 
 	thinq_df.to_csv('thinq_cdr.csv', encoding='utf-8' , index=False)
+	print("The output cdr was saved as thinq_cdr.csv")
 
 elif decision == "avoxi":
 	#Importing avoxi file:
@@ -46,6 +47,7 @@ elif decision == "avoxi":
 	avoxi_df = avoxi_df.sort_values(by='Date', ascending=True) # This now sorts in date order
 
 	avoxi_df.to_csv('avoxi_cdr.csv', encoding='utf-8' , index=False)
+	print("The output cdr was saved as avoxi_cdr.csv")
 	
 elif decision == "migesa":
 	#migesa
@@ -60,6 +62,7 @@ elif decision == "migesa":
 	migesa_df = migesa_raw.rename(index=str, columns={"calldate": "Date", "src": "Source","dst": "Destination","duration": "Seconds","clid": "CallerID", "disposition": "Disposition"})
 
 	migesa_df.to_csv('migesa_cdr.csv', encoding='utf-8', index=False)
+	print("The output cdr was saved as migesa_cdr.csv")
 	
 else:
 	print("Please enter a valid provider")
