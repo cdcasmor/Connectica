@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 import numpy as np
 import pandas as pd
 from decimal import Decimal
@@ -48,6 +48,54 @@ elif decision == "avoxi":
 
 	avoxi_df.to_csv('avoxi_cdr.csv', encoding='utf-8' , index=False)
 	print("The output cdr was saved as avoxi_cdr.csv")
+	
+elif decision == "didx":
+	#Importing avoxi file:
+	didx_name = input('Enter the name of the didx file: ')
+
+	didx_raw = pd.read_csv(didx_name)
+	
+	didx_raw['Peer'] = didx_raw['Destination']
+		
+	didx_raw = didx_raw[['CallDate','CallFrom','Destination','Duration (sec)', 'CallID', 'Status', 'TotalCost', 'Peer']]
+	didx_df = didx_raw.rename(index=str, columns={"CallDate": "Date", "CallFrom": "Source","Duration (sec)": "Seconds","CallID": "CallerID","Status": "Disposition","TotalCost": "Cost"})
+
+	didx_df = didx_df.sort_values(by='Date', ascending=True) # This now sorts in date order
+	
+#Date format fix
+	j = 0
+	i = 0
+	dimension = (len(didx_df['Date']) - 1)
+	Date = []
+
+	while (i <= dimension):
+		Date.append(str(didx_df['Date'][i]))
+		i += 1
+		
+	newdates =[]
+
+	for date in Date:
+		d = datetime.datetime.strptime(date, '%d-%m-%Y %H:%M')
+		date = d.strftime('%Y-%m-%d %H:%M:00')
+		newdates.append(date)
+		
+	didx_df['Date'] = newdates   		
+#Disposition column fix	
+	for index, row in didx_df.iterrows():
+		didx_df['CallerID'] = ""
+	for answer in didx_df['Disposition']:
+		if didx_df['Disposition'][j] == "ANSWER":
+			didx_df['Disposition'][j] = "ANSWERED"
+			j += 1
+		elif didx_df['Disposition'][j] == "CANCEL":
+			didx_df['Disposition'][j] = "CANCELLED"
+			j += 1
+		else: 
+			print("There is an unknown value on the disposition column")
+			j += 1
+			
+	didx_df.to_csv('didx_cdr.csv', encoding='utf-8' , index=False)
+	print("The output cdr was saved as didx_cdr.csv")
 	
 elif decision == "migesa":
 	#migesa
