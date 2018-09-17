@@ -62,7 +62,7 @@ elif decision == "didx":
 
 	didx_df = didx_df.sort_values(by='Date', ascending=True) # This now sorts in date order
 	
-#Date format fix
+	#Date format fix
 	j = 0
 	i = 0
 	dimension = (len(didx_df['Date']) - 1)
@@ -80,7 +80,7 @@ elif decision == "didx":
 		newdates.append(date)
 		
 	didx_df['Date'] = newdates   		
-#Disposition column fix	
+	#Disposition column fix	
 	for index, row in didx_df.iterrows():
 		didx_df['CallerID'] = ""
 	for answer in didx_df['Disposition']:
