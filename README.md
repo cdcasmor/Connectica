@@ -1,7 +1,7 @@
 ![Connectica-Solutions](Connectica-Solutions.png)
 
-This repository is a compilation of some of my work at Connectica Solutions. 
-No data sources have been included but the following guide will help provide context
+###This repository is a compilation of some of my work at Connectica Solutions. 
+###No data sources have been included but the following guide will help provide context
 
 | Name        | Description           |
 | ------------- |:-------------:|
